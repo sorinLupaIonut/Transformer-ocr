@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+              "--source", "HKR" ,
+              // "--image", "/home/sorin/Documents/OCR/Transformer-ocr/src/0_0_0.jpg",
+              "--test"
+              //"--transform",
+              // "--train",
+              // "--epochs" , "1",
+              // "--batch_size" , "1"
+            ]
+          }
+    ]
+}

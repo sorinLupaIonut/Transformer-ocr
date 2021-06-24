@@ -50,14 +50,26 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    raw_path = os.path.join("..", "raw", args.source)
-    source_path = os.path.join("..", "data", f"{args.source}.hdf5")
-    output_path = os.path.join("..", "output", args.source,)
+    currentPathh = "/home/sorin/Documents/OCR/Transformer-ocr";
+
+    raw_path = os.path.join(currentPathh, "raw", args.source)
+    source_path = os.path.join(currentPathh, "data", f"{args.source}.hdf5")
+    output_path = os.path.join(currentPathh, "output", args.source,)
     target_path = os.path.join(output_path, "checkpoint_weights.pt")
+    pretrain_path = os.path.join(output_path, "pretrain_weights_bentham.pt")
+
+    device = 'cuda';
 
     input_size = (1024, 128, 1)
     max_text_length = 128
     charset_base = string.printable[:95]
+    lenthCharbase = len(charset_base)
+    #charset_base = '0123456789АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ '
+    charsetFromFiles = ';?еЖйқ)ГғСӨЗъмыхи—К-…нМПшЧД(О.ЫЩ:рНс өHфИцЛ–ФЕщтбюРо,ЙТБХёчАьЭэ!ҮЮВШпваУулЬджяҚЯoкгз'
+    charset_base = charset_base + charsetFromFiles
+    charset_base =  ''.join(set(charset_base))
+    lengthCharbase = len(charset_base)
+
     tokenizer = Tokenizer(chars=charset_base, max_text_length=max_text_length)            
 
     if args.transform:
@@ -88,8 +100,7 @@ if __name__ == "__main__":
         img = np.repeat(img[..., np.newaxis],3, -1)
         x_test = pp.normalization(img)
 
-        model = make_model(tokenizer.vocab_size, hidden_dim=256, nheads=4,
-                 num_encoder_layers=4, num_decoder_layers=4)
+        model = make_model(vocab_len=171)
         device = torch.device(args.device)
         model.to(device)
         transform = T.Compose([
@@ -115,10 +126,22 @@ if __name__ == "__main__":
         
         if args.train:
             
+            transform = T.Compose([
+                T.ToTensor()])
             device = torch.device(device)
-            model = make_model(tokenizer.vocab_size, hidden_dim=256, nheads=4,
-                     num_encoder_layers=4, num_decoder_layers=4)
+            model = make_model(vocab_len=171)
             model.to(device)
+
+            if os.path.exists(pretrain_path):
+                state_dict = torch.load(pretrain_path)
+                del state_dict['vocab.weight']
+                del state_dict['vocab.bias']
+                del state_dict['decoder.weight']
+                model.load_state_dict(state_dict,strict=False)            
+            else:            
+                print('No model checkpoint found')
+
+        
             
             train_loader = torch.utils.data.DataLoader(DataGenerator(source_path,charset_base,max_text_length,'train',transform), batch_size=args.batch_size, shuffle=False, num_workers=2)
             val_loader = torch.utils.data.DataLoader(DataGenerator(source_path,charset_base,max_text_length,'valid',transform), batch_size=args.batch_size, shuffle=False, num_workers=2)
@@ -129,11 +152,22 @@ if __name__ == "__main__":
             optimizer = torch.optim.AdamW(model.parameters(), lr=lr,weight_decay=.0004)
             scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.95)
 
-            run_epochs(model, criterion, optimizer, scheduler, train_loader, val_loader, args.epochs, tokenizer, target_path)                
+            run_epochs(model, criterion, optimizer, scheduler, train_loader, val_loader, args.epochs, tokenizer, target_path , device)                
 
 
         elif args.test:
             
+            model = make_model(vocab_len=171)
+            device = torch.device(args.device)
+            model.to(device)
+            transform = T.Compose([
+                    T.ToTensor()])
+                    
+
+            if os.path.exists(target_path):
+                model.load_state_dict(torch.load(target_path))            
+            else:            
+                print('No model checkpoint found')
             model.eval()
             predicts = []
             gt = []

@@ -11,7 +11,7 @@ import data.preproc as pp
 import h5py
 import numpy as np
 import unicodedata
-
+import re
 
 class DataGenerator(Dataset):
     """Generator class with data streaming"""
@@ -81,7 +81,7 @@ class Tokenizer():
     def encode(self, text):
         """Encode text to vector"""
 
-        text = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode("ASCII")
+        #text = unicodedata.normalize("NFKD", text).encode().decode()
         text = " ".join(text.split())
 
         groups = ["".join(group) for _, group in groupby(text)]
