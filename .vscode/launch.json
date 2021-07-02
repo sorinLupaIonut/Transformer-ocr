@@ -13,13 +13,13 @@
             "justMyCode": false,
             "args": [
               "--source", "HKR" ,
-              // "--image", "/home/sorin/Documents/OCR/Transformer-ocr/src/0_0_0.jpg",
-              "--test"
-              //"--transform",
+               "--image", "/home/sorin/Documents/OCR/Transformer-ocr/src/0_0_9.jpg",
+              //"--test",
+              // "--transform",
               // "--train",
-              // "--epochs" , "1",
-              // "--batch_size" , "1"
-            ]
+              // "--epochs" , "10",
+              // "--batch_size" , "1",
+             ]
           }
     ]
 }

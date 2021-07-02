@@ -56,19 +56,26 @@ if __name__ == "__main__":
     source_path = os.path.join(currentPathh, "data", f"{args.source}.hdf5")
     output_path = os.path.join(currentPathh, "output", args.source,)
     target_path = os.path.join(output_path, "checkpoint_weights.pt")
-    pretrain_path = os.path.join(output_path, "pretrain_weights_bentham.pt")
+    #pretrain_path = os.path.join(output_path, "pretrain_weights_bentham.pt")
+    pretrain_path = ''
 
     device = 'cuda';
 
     input_size = (1024, 128, 1)
     max_text_length = 128
     charset_base = string.printable[:95]
-    lenthCharbase = len(charset_base)
-    #charset_base = '0123456789АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ '
+    # lenthCharbase = len(charset_base)
+    # #charset_base = '0123456789АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ '
     charsetFromFiles = ';?еЖйқ)ГғСӨЗъмыхи—К-…нМПшЧД(О.ЫЩ:рНс өHфИцЛ–ФЕщтбюРо,ЙТБХёчАьЭэ!ҮЮВШпваУулЬджяҚЯoкгз'
-    charset_base = charset_base + charsetFromFiles
+    charset_base =  charset_base + charsetFromFiles
     charset_base =  ''.join(set(charset_base))
     lengthCharbase = len(charset_base)
+    print (lengthCharbase)
+    
+    charset_base = [chr(i) for i in range(2000)]
+
+
+    vocabbb_size = 2004
 
     tokenizer = Tokenizer(chars=charset_base, max_text_length=max_text_length)            
 
@@ -82,7 +89,7 @@ if __name__ == "__main__":
         ds.preprocess_partitions(input_size=input_size)
 
         print("Partitions will be saved...")
-        os.makedirs(os.path.dirname(source_path), exist_ok=True)
+        os.makedirs(os.path.dirname(source_path), exist_ok=True)    
 
         for i in ds.partitions:
             with h5py.File(source_path, "a") as hf:
@@ -100,7 +107,7 @@ if __name__ == "__main__":
         img = np.repeat(img[..., np.newaxis],3, -1)
         x_test = pp.normalization(img)
 
-        model = make_model(vocab_len=171)
+        model = make_model(vocab_len=vocabbb_size)
         device = torch.device(args.device)
         model.to(device)
         transform = T.Compose([
@@ -129,7 +136,7 @@ if __name__ == "__main__":
             transform = T.Compose([
                 T.ToTensor()])
             device = torch.device(device)
-            model = make_model(vocab_len=171)
+            model = make_model(vocab_len=vocabbb_size)
             model.to(device)
 
             if os.path.exists(pretrain_path):
@@ -157,7 +164,7 @@ if __name__ == "__main__":
 
         elif args.test:
             
-            model = make_model(vocab_len=171)
+            model = make_model(vocab_len=vocabbb_size)
             device = torch.device(args.device)
             model.to(device)
             transform = T.Compose([
